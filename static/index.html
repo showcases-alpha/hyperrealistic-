@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07151a">
+  <title>Aurelia — A Living Island</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <canvas id="world" aria-label="Interactive three-dimensional island"></canvas>
+  <div id="loader">
+    <div class="brand"><span>AURELIA</span><small>A LIVING ISLAND</small></div>
+    <div class="loadline"><i></i></div>
+    <p id="load-status">Shaping ancient stone…</p>
+  </div>
+
+  <header class="topbar glass">
+    <div class="mark">A</div>
+    <div class="title"><strong>AURELIA</strong><span>37.42° N · 16.18° W</span></div>
+    <div class="weather"><span class="sun-icon">☀</span><div><b id="clock">16:42</b><small>22°C · CLEAR</small></div></div>
+  </header>
+
+  <aside class="telemetry glass">
+    <div class="eyebrow">LIVE FIELD DATA</div>
+    <div class="metric"><span>ELEVATION</span><b><i id="alt">24</i> m</b></div>
+    <div class="metric"><span>BEARING</span><b id="bearing">NW · 318°</b></div>
+    <div class="metric"><span>WIND</span><b>6.2 kn <em>↗</em></b></div>
+    <div class="biome"><span id="biome-dot"></span><div><small>LOCAL BIOME</small><b id="biome">COASTAL MEADOW</b></div></div>
+  </aside>
+
+  <div class="crosshair"><i></i><i></i></div>
+  <div id="prompt" class="prompt"><span class="mouse">◉</span><b>CLICK TO EXPLORE</b><small>Mouse to look · WASD to move</small></div>
+
+  <section class="time-panel glass">
+    <div class="time-head"><span>TIME OF DAY</span><b id="period">GOLDEN HOUR</b></div>
+    <input id="time" type="range" min="0" max="24" step="0.05" value="16.7" aria-label="Time of day">
+    <div class="ticks"><span>6 AM</span><span>NOON</span><span>6 PM</span></div>
+  </section>
+
+  <nav class="controls glass" aria-label="Controls">
+    <button id="walk" class="active" title="Walk mode"><span>♙</span> WALK</button>
+    <button id="fly" title="Fly mode"><span>⌁</span> FLY</button>
+    <button id="photo" title="Hide interface"><span>◫</span> PHOTO</button>
+    <button id="sound" title="Ambient sound"><span>♬</span> SOUND</button>
+  </nav>
+
+  <div class="help glass"><b>W A S D</b><span>MOVE</span><b>SHIFT</b><span>SPRINT</span><b>F</b><span>FLY</span></div>
+  <div class="vignette"></div><div class="grain"></div>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
