@@ -47,6 +47,18 @@
 
   <div class="help glass"><b>W A S D</b><span>MOVE</span><b>SHIFT</b><span>SPRINT</span><b>F</b><span>FLY</span></div>
   <div class="vignette"></div><div class="grain"></div>
+  <script>
+    window.addEventListener('error', function (event) {
+      var status = document.getElementById('load-status');
+      if (status) status.textContent = 'Rendering error — ' + (event.message || 'WebGL could not start');
+      console.error(event.error || event.message);
+    });
+    window.setTimeout(function () {
+      var loader = document.getElementById('loader');
+      var status = document.getElementById('load-status');
+      if (loader && status && !window.__AURELIA_READY__) status.textContent = 'Still preparing the ecosystem…';
+    }, 8000);
+  </script>
   <script type="module" src="/js/app.js"></script>
 </body>
 </html>

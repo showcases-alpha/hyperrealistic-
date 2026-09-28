@@ -23,7 +23,7 @@ function rand(){ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; }
 function hash(x,z){ const s=Math.sin(x*127.1+z*311.7)*43758.5453; return s-Math.floor(s); }
 function smooth(t){ return t*t*(3-2*t); }
 function noise(x,z){ const ix=Math.floor(x),iz=Math.floor(z),fx=x-ix,fz=z-iz; const a=hash(ix,iz),b=hash(ix+1,iz),c=hash(ix,iz+1),d=hash(ix+1,iz+1); const u=smooth(fx),v=smooth(fz); return THREE.MathUtils.lerp(THREE.MathUtils.lerp(a,b,u),THREE.MathUtils.lerp(c,d,u),v)*2-1; }
-function fbm(x,z){ let n=0,a=.5,f=1; for(let i=0;i<6;i++){ n+=a*noise(x*f,z*f); f*=2.03; a*=.49; } return n; }
+function fbm(x,z){ let n=0,a=.5,f=1; for(let i=0;i<5;i++){ n+=a*noise(x*f,z*f); f*=2.03; a*=.49; } return n; }
 function coastRadius(a){ return 515 + 48*Math.sin(a*3+1.1)+27*Math.sin(a*7-2.4)+17*Math.sin(a*13+.5)+9*noise(Math.cos(a)*5,Math.sin(a)*5); }
 const LAKE={x:-145,z:35,r:78,y:18.4};
 function terrainHeight(x,z){
@@ -48,7 +48,7 @@ const sunDisc=new THREE.Mesh(new THREE.SphereGeometry(18,20,12),new THREE.MeshBa
 
 // Geological terrain ------------------------------------------------------------
 document.querySelector('#load-status').textContent='Eroding valleys and coast…';
-const N=240,SIZE=1400, verts=[],cols=[],indices=[]; const color=new THREE.Color();
+const N=168,SIZE=1400, verts=[],cols=[],indices=[]; const color=new THREE.Color();
 for(let j=0;j<=N;j++)for(let i=0;i<=N;i++){
   const x=(i/N-.5)*SIZE,z=(j/N-.5)*SIZE,y=terrainHeight(x,z),sl=slopeAt(x,z),d=Math.hypot(x,z),ld=Math.hypot(x-LAKE.x,z-LAKE.z);
   verts.push(x,y,z);
@@ -83,17 +83,17 @@ function makeInstances(geometry,material,count,placement,shadows=true){const mes
 function landPoint(minH=5,maxH=110,maxSlope=.55){const a=rand()*Math.PI*2,r=Math.sqrt(rand())*500,x=Math.cos(a)*r,z=Math.sin(a)*r,y=terrainHeight(x,z),s=slopeAt(x,z);if(y<minH||y>maxH||s>maxSlope||Math.hypot(x-LAKE.x,z-LAKE.z)<92)return null;return{x,y,z,slope:s}}
 const trunkMat=new THREE.MeshStandardMaterial({color:0x44382a,roughness:1});
 const leafMat=new THREE.MeshStandardMaterial({color:0x294d24,roughness:.82,side:THREE.DoubleSide});
-const treeData=[];for(let i=0;i<1250;i++){let p;for(let t=0;t<20&&!p;t++){const q=landPoint(11,92,.54);if(q&&noise(q.x*.008+20,q.z*.008)>.02)p=q}if(p){p.s=.7+rand()*.75;p.ry=rand()*6.28;treeData.push(p)}}
+const treeData=[];for(let i=0;i<720;i++){let p;for(let t=0;t<20&&!p;t++){const q=landPoint(11,92,.54);if(q&&noise(q.x*.008+20,q.z*.008)>.02)p=q}if(p){p.s=.7+rand()*.75;p.ry=rand()*6.28;treeData.push(p)}}
 function fromTree(){return treeData.shift()||null}
 const copyTrees=[...treeData];makeInstances(new THREE.CylinderGeometry(.55,.9,9,7),trunkMat,copyTrees.length,()=>{const p=copyTrees.shift();return p&&{...p,y:p.y+4.3,sy:p.s,sx:p.s,sz:p.s}});
 const canopyData=treeData.length?treeData:[...copyTrees]; // fallback unused
 // recreate deterministic canopy transforms from trunk source by sampling matrices instead
 const trunks=scene.children[scene.children.length-1]; const canopy=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(4.3,1),leafMat,trunks.count*3);let ci=0,m=new THREE.Matrix4(),pos=new THREE.Vector3(),quat=new THREE.Quaternion(),sca=new THREE.Vector3();for(let i=0;i<trunks.count;i++){trunks.getMatrixAt(i,m);m.decompose(pos,quat,sca);for(let k=0;k<3;k++){dummy.position.set(pos.x+(k-1)*1.8*sca.x,pos.y+5.3*sca.y+(k===1?2.2:0),pos.z+(k%2?.9:-.6)*sca.z);dummy.rotation.set(0,i*.71+k,0);dummy.scale.set(1.15*sca.x,(1.2-k*.08)*sca.y,1.15*sca.z);dummy.updateMatrix();canopy.setMatrixAt(ci++,dummy.matrix)}}canopy.castShadow=true;canopy.receiveShadow=true;scene.add(canopy);
 // rocks
-makeInstances(new THREE.IcosahedronGeometry(1.4,1),new THREE.MeshStandardMaterial({color:0x77796f,roughness:.86}),900,()=>{const p=landPoint(2,120,.95);if(!p)return null;const s=.25+Math.pow(rand(),2)*3.8;return{...p,y:p.y+s*.45,s,sy:s*(.45+rand()*.35),ry:rand()*6.28,rx:rand()*.4}});
+makeInstances(new THREE.IcosahedronGeometry(1.4,1),new THREE.MeshStandardMaterial({color:0x77796f,roughness:.86}),520,()=>{const p=landPoint(2,120,.95);if(!p)return null;const s=.25+Math.pow(rand(),2)*3.8;return{...p,y:p.y+s*.45,s,sy:s*(.45+rand()*.35),ry:rand()*6.28,rx:rand()*.4}});
 // grass blades in broad natural patches
 const grassMat=new THREE.MeshStandardMaterial({color:0x55763a,roughness:1,side:THREE.DoubleSide});grassMat.onBeforeCompile=s=>{s.uniforms.uTime={value:0};grassMat.userData.shader=s;s.vertexShader=s.vertexShader.replace('void main() {','uniform float uTime; void main() {').replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.x += sin(uTime*1.7 + instanceMatrix[3].x*.1)*uv.y*.12;');};
-makeInstances(new THREE.PlaneGeometry(.16,1.1,1,2).translate(0,.55,0),grassMat,16000,()=>{const p=landPoint(7,70,.38);if(!p)return null;return{...p,s:.55+rand()*.75,ry:rand()*6.28}} ,false);
+makeInstances(new THREE.PlaneGeometry(.16,1.1,1,2).translate(0,.55,0),grassMat,6500,()=>{const p=landPoint(7,70,.38);if(!p)return null;return{...p,s:.55+rand()*.75,ry:rand()*6.28}} ,false);
 // reeds around lake
 makeInstances(new THREE.CylinderGeometry(.025,.04,2.2,4),new THREE.MeshStandardMaterial({color:0x6d7c36,roughness:1}),480,()=>{const a=rand()*6.28,r=LAKE.r+5+(rand()-.5)*18,x=LAKE.x+Math.cos(a)*r,z=LAKE.z+Math.sin(a)*r,y=terrainHeight(x,z);return{x,y:y+1,z,s:.7+rand()*.5,ry:rand()*6.28}},false);
 // driftwood
@@ -132,4 +132,4 @@ function update(dt){
 }
 function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.05);elapsed+=dt;update(dt);renderer.render(scene,camera)}
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.75))});
-setTimeout(()=>{const l=document.querySelector('#loader');l.style.opacity=0;setTimeout(()=>l.remove(),1100)},800);animate();
+window.__AURELIA_READY__=true;setTimeout(()=>{const l=document.querySelector('#loader');if(!l)return;l.style.opacity=0;setTimeout(()=>l.remove(),1100)},350);animate();

@@ -31,7 +31,8 @@ class IslandHandler(SimpleHTTPRequestHandler):
     def end_headers(self) -> None:
         self.send_header("Cross-Origin-Opener-Policy", "same-origin")
         self.send_header("X-Content-Type-Options", "nosniff")
-        self.send_header("Cache-Control", "no-cache" if self.path == "/" else "public, max-age=3600")
+        # Revalidate assets so changes and recovery fixes appear immediately in the browser.
+        self.send_header("Cache-Control", "no-cache")
         super().end_headers()
 
     def do_GET(self) -> None:
